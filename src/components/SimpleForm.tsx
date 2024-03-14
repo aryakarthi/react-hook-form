@@ -2,13 +2,31 @@ import { useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 
 type FormValues = {
-  username: string;
+  name: string;
   email: string;
-  course: string;
+  city: string;
+  social: {
+    github: string;
+    linkedin: string;
+  };
+  mobile: string[];
 };
 
 const SimpleForm = () => {
-  const form = useForm<FormValues>();
+  // type can be omitted if we added default values.
+  // otherwise it throws typescript error
+  const form = useForm<FormValues>({
+    defaultValues: {
+      name: "",
+      email: "",
+      city: "",
+      social: {
+        github: "",
+        linkedin: "",
+      },
+      mobile: ["", ""],
+    },
+  });
   const { register, control, handleSubmit, formState } = form;
   const { errors } = formState;
 
@@ -22,23 +40,23 @@ const SimpleForm = () => {
         noValidate
         className="flex flex-col max-w-3xl gap-2 mx-auto"
       >
-        <label htmlFor="username" className="text-xl text-white">
-          Username
+        <label htmlFor="name" className="text-xl text-white">
+          Name
         </label>
         <input
           type="text"
           className="rounded-md text-xl p-2"
-          id="username"
-          {...register("username", {
+          id="name"
+          {...register("name", {
             required: {
               value: true,
-              message: "Username is required!",
+              message: "Name is required!",
             },
           })}
         />
-        {errors.username && (
+        {errors.name && (
           <p className="bg-yellow-100 text-red-500 italic px-2 py-1 rounded-md self-start">
-            {errors.username?.message}
+            {errors.name?.message}
           </p>
         )}
 
@@ -68,10 +86,7 @@ const SimpleForm = () => {
                 );
               },
               notBlackListed: (value: string) => {
-                return (
-                  !value.endsWith("in") ||
-                  "This domain is restricted!"
-                );
+                return !value.endsWith("in") || "This domain is restricted!";
               },
             },
           })}
@@ -81,25 +96,66 @@ const SimpleForm = () => {
             {errors.email?.message}
           </p>
         )}
-        <label htmlFor="course" className="text-xl text-white">
-          Course
+        <label htmlFor="city" className="text-xl text-white">
+          City
         </label>
         <input
           type="text"
           className="rounded-md text-xl p-2"
-          id="course"
-          {...register("course", {
+          id="city"
+          {...register("city", {
             required: {
               value: true,
-              message: "Course is required!",
+              message: "City is required!",
             },
           })}
         />
-        {errors.course && (
+        {errors.city && (
           <p className="bg-yellow-100 text-red-500 italic px-2 py-1 rounded-md self-start">
-            {errors.course?.message}
+            {errors.city?.message}
           </p>
         )}
+
+        <label htmlFor="github" className="text-xl text-white">
+          Github
+        </label>
+        <input
+          type="text"
+          className="rounded-md text-xl p-2"
+          id="github"
+          {...register("social.github")}
+        />
+
+        <label htmlFor="linkedin" className="text-xl text-white">
+          Linkedin
+        </label>
+        <input
+          type="text"
+          className="rounded-md text-xl p-2"
+          id="linkedin"
+          {...register("social.linkedin")}
+        />
+
+        <label htmlFor="primary" className="text-xl text-white">
+          Primary Mobile No:
+        </label>
+        <input
+          type="text"
+          className="rounded-md text-xl p-2"
+          id="primary"
+          {...register("mobile.0")}
+        />
+
+        <label htmlFor="secondary" className="text-xl text-white">
+          Secondary Mobile No:
+        </label>
+        <input
+          type="text"
+          className="rounded-md text-xl p-2"
+          id="secondary"
+          {...register("mobile.1")}
+        />
+
         <button className="w-full my-10 text-xl font-semibold bg-gray-300 p-2 rounded-md">
           Submit
         </button>
