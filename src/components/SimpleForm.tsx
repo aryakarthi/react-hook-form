@@ -10,6 +10,8 @@ type FormValues = {
     linkedin: string;
   };
   mobile: string[];
+  age: number;
+  dob: Date;
 };
 
 const SimpleForm = () => {
@@ -25,10 +27,19 @@ const SimpleForm = () => {
         linkedin: "",
       },
       mobile: ["", ""],
+      age: 0,
+      dob: new Date(),
     },
   });
-  const { register, control, handleSubmit, formState } = form;
+  const { register, control, handleSubmit, formState, watch } = form;
   const { errors } = formState;
+
+  const getName = watch("name");
+  console.log(getName);
+  const getNameEmail = watch(["name", "email"]);
+  console.log(getNameEmail);
+  const getForm = watch();
+  console.log(getForm);
 
   const onSubmit = (data: FormValues) => {
     console.log("submitted!", data);
@@ -57,6 +68,48 @@ const SimpleForm = () => {
         {errors.name && (
           <p className="bg-yellow-100 text-red-500 italic px-2 py-1 rounded-md self-start">
             {errors.name?.message}
+          </p>
+        )}
+
+        <label htmlFor="age" className="text-xl text-white">
+          Age
+        </label>
+        <input
+          type="number"
+          className="rounded-md text-xl p-2"
+          id="age"
+          {...register("age", {
+            valueAsNumber: true,
+            required: {
+              value: true,
+              message: "Age is required!",
+            },
+          })}
+        />
+        {errors.age && (
+          <p className="bg-yellow-100 text-red-500 italic px-2 py-1 rounded-md self-start">
+            {errors.age?.message}
+          </p>
+        )}
+
+        <label htmlFor="dob" className="text-xl text-white">
+          DOB
+        </label>
+        <input
+          type="date"
+          className="rounded-md text-xl p-2"
+          id="dob"
+          {...register("dob", {
+            valueAsDate: true,
+            required: {
+              value: true,
+              message: "DOB is required!",
+            },
+          })}
+        />
+        {errors.dob && (
+          <p className="bg-yellow-100 text-red-500 italic px-2 py-1 rounded-md self-start">
+            {errors.dob?.message}
           </p>
         )}
 
