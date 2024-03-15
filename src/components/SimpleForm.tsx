@@ -1,5 +1,6 @@
-import { useForm } from "react-hook-form";
+import { FieldErrors, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
+import { useEffect } from "react";
 
 type FormValues = {
   name: string;
@@ -30,9 +31,24 @@ const SimpleForm = () => {
       age: 0,
       dob: new Date(),
     },
+    // mode: "onBlur",
   });
-  const { register, control, handleSubmit, formState, watch } = form;
-  const { errors } = formState;
+  const { register, control, handleSubmit, formState, watch, reset, trigger } =
+    form;
+  const {
+    errors,
+    touchedFields,
+    dirtyFields,
+    isDirty,
+    isValid,
+    isSubmitting,
+    isSubmitted,
+    isSubmitSuccessful,
+    submitCount,
+  } = formState;
+
+  console.log({ touchedFields, dirtyFields, isDirty, isValid });
+  console.log({ isSubmitting, isSubmitted, isSubmitSuccessful, submitCount });
 
   const getName = watch("name");
   console.log(getName);
@@ -42,12 +58,23 @@ const SimpleForm = () => {
   console.log(getForm);
 
   const onSubmit = (data: FormValues) => {
-    console.log("submitted!", data);
+    console.log("Form submitted!", data);
   };
+
+  const onError = (errors: FieldErrors<FormValues>) => {
+    console.log("Form errors!", errors);
+  };
+
+  useEffect(() => {
+    if (isSubmitSuccessful) {
+      reset();
+    }
+  }, [isSubmitSuccessful, reset]);
+
   return (
     <div>
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, onError)}
         noValidate
         className="flex flex-col max-w-3xl gap-2 mx-auto"
       >
@@ -141,6 +168,13 @@ const SimpleForm = () => {
               notBlackListed: (value: string) => {
                 return !value.endsWith("in") || "This domain is restricted!";
               },
+              emailAvailable: async (fieldValue) => {
+                const response = await fetch(
+                  `https://jsonplaceholder.typicode.com/users?email=${fieldValue}`
+                );
+                const data = await response.json();
+                return data.length === 0 || "Email already exists";
+              },
             },
           })}
         />
@@ -186,7 +220,10 @@ const SimpleForm = () => {
           type="text"
           className="rounded-md text-xl p-2"
           id="linkedin"
-          {...register("social.linkedin")}
+          {...register("social.linkedin", {
+            // disabled: true,
+            disabled: watch("name") === "",
+          })}
         />
 
         <label htmlFor="primary" className="text-xl text-white">
@@ -209,8 +246,25 @@ const SimpleForm = () => {
           {...register("mobile.1")}
         />
 
-        <button className="w-full my-10 text-xl font-semibold bg-gray-300 p-2 rounded-md">
+        <button
+          disabled={isSubmitting}
+          className="w-full mt-10 text-xl font-semibold bg-gray-300 p-2 rounded-md"
+        >
           Submit
+        </button>
+        <button
+          type="button"
+          onClick={() => reset()}
+          className="w-full mt-10 text-xl font-semibold bg-gray-300 p-2 rounded-md"
+        >
+          Reset
+        </button>
+        <button
+          type="button"
+          onClick={() => trigger()}
+          className="w-full mt-10 text-xl font-semibold bg-gray-300 p-2 rounded-md"
+        >
+          Validate
         </button>
       </form>
       <DevTool control={control} />
